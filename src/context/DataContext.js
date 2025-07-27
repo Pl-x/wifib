@@ -1,5 +1,5 @@
 // src/context/DataContext.js
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import { paymentAPI, customerAPI, billAPI } from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -125,21 +125,8 @@ export function DataProvider({ children }) {
     toast.error(`${context}: ${message}`);
   };
 
-  // Load data on mount
-  useEffect(() => {
-    loadInitialData();
-  }, []);
-
-  const loadInitialData = async () => {
-    await Promise.all([
-      fetchCustomers(),
-      fetchBills(),
-      fetchPayments(),
-    ]);
-  };
-
   // Customer functions
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     dispatch({ type: ACTIONS.SET_LOADING, payload: { type: 'customers', value: true } });
     try {
       const response = await customerAPI.getAllCustomers();
@@ -181,7 +168,7 @@ export function DataProvider({ children }) {
     } finally {
       dispatch({ type: ACTIONS.SET_LOADING, payload: { type: 'customers', value: false } });
     }
-  };
+  }, [dispatch])
 
   const addCustomer = async (customerData) => {
     try {
@@ -222,7 +209,7 @@ export function DataProvider({ children }) {
   };
 
   // Bill functions
-  const fetchBills = async () => {
+  const fetchBills = useCallback(async () => {
     dispatch({ type: ACTIONS.SET_LOADING, payload: { type: 'bills', value: true } });
     try {
       const response = await billAPI.getAllBills();
@@ -260,7 +247,7 @@ export function DataProvider({ children }) {
     } finally {
       dispatch({ type: ACTIONS.SET_LOADING, payload: { type: 'bills', value: false } });
     }
-  };
+  }, [dispatch])
 
   const addBill = async (billData) => {
     try {
@@ -282,7 +269,7 @@ export function DataProvider({ children }) {
   };
 
   // Payment functions - these should work with your existing backend
-  const fetchPayments = async () => {
+  const fetchPayments = useCallback(async () => {
     dispatch({ type: ACTIONS.SET_LOADING, payload: { type: 'payments', value: true } });
     try {
       const response = await paymentAPI.getAllPayments();
@@ -308,15 +295,29 @@ export function DataProvider({ children }) {
     } finally {
       dispatch({ type: ACTIONS.SET_LOADING, payload: { type: 'payments', value: false } });
     }
-  };
+  }, [dispatch])
 
   const addPayment = (paymentData) => {
     // This will be called after successful payment processing
     dispatch({ type: ACTIONS.ADD_PAYMENT, payload: paymentData });
   };
+  
+  const loadInitialData = useCallback(async () => {
+    await Promise.all([
+      fetchCustomers(),
+      fetchBills(),
+      fetchPayments(),
+    ]);
+  },
+  [fetchCustomers, fetchBills, fetchPayments]);
+  
+// Load data on mount
+  useEffect(() => {
+    loadInitialData();
+  }, [loadInitialData]);
 
   // Generate activities from recent data
-  const generateActivities = () => {
+  const generateActivities = useCallback(() => {
     const activities = [];
     
     // Add recent payments
@@ -345,12 +346,12 @@ export function DataProvider({ children }) {
     });
 
     dispatch({ type: ACTIONS.SET_ACTIVITIES, payload: activities });
-  };
-
+  }, [state.payments, state.customers, dispatch]);
+  
   // Update activities when data changes
   useEffect(() => {
     generateActivities();
-  }, [state.payments, state.customers]);
+  }, [state.payments, state.customers, generateActivities]);
 
   // Refresh functions
   const refreshData = async () => {
