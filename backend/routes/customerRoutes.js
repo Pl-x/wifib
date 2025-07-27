@@ -9,7 +9,7 @@ const validateCustomer = [
   body('name').notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Valid email is required'),
   body('phone').notEmpty().withMessage('Phone number is required'),
-  body('plan').notEmpty().withMessage('Plan is required'),
+  body('plan-id').notEmpty().withMessage('Plan is required'),
   body('status').optional().isIn(['active', 'inactive', 'pending']).withMessage('Invalid status'),
 ];
 
@@ -17,7 +17,7 @@ const validateCustomerUpdate = [
   body('name').optional().notEmpty().withMessage('Name cannot be empty'),
   body('email').optional().isEmail().withMessage('Valid email is required'),
   body('phone').optional().notEmpty().withMessage('Phone number cannot be empty'),
-  body('plan').optional().notEmpty().withMessage('Plan cannot be empty'),
+  body('plan_id').optional().notEmpty().withMessage('Plan cannot be empty'),
   body('status').optional().isIn(['active', 'inactive', 'pending']).withMessage('Invalid status'),
 ];
 
@@ -26,7 +26,7 @@ router.get('/', [
   query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
   query('status').optional().isIn(['active', 'inactive', 'pending']).withMessage('Invalid status'),
-  query('plan').optional().isString().withMessage('Plan must be a string')
+  query('plan_id').optional().isString().withMessage('Plan must be a string')
 ], customerController.getAllCustomers);
 
 router.post('/', validateCustomer, customerController.createCustomer);

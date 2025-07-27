@@ -312,7 +312,7 @@ class BillController {
 
       // Get all active customers
       const [activeCustomers] = await pool.execute(
-        'SELECT id, name, plan FROM customers WHERE status = "active"'
+        'SELECT id, name, plan_id FROM customers WHERE status = "active"'
       );
 
       if (activeCustomers.length === 0) {
@@ -334,7 +334,7 @@ class BillController {
 
       for (const customer of activeCustomers) {
         // Extract plan name and get price
-        const planPrice = planPrices[customer.plan] || 50.00; // Default price if plan not found
+        const planPrice = planPrices[customer.plan_id] || 50.00; // Default price if plan not found
         
         const billId = uuidv4();
         
@@ -345,7 +345,7 @@ class BillController {
             billId, 
             customer.id, 
             planPrice, 
-            description || `Monthly service fee for ${customer.plan}`,
+            description || `Monthly service fee for ${customer.plan_id}`,
             dueDate, 
             issueDate
           ]
@@ -356,7 +356,7 @@ class BillController {
           customerId: customer.id,
           customerName: customer.name,
           amount: planPrice,
-          plan: customer.plan
+          plan: customer.plan_id
         });
       }
 

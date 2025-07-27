@@ -21,7 +21,7 @@ class CustomerController {
       }
 
       if (plan) {
-        query += ' AND plan LIKE ?';
+        query += ' AND plan_id LIKE ?';
         params.push(`%${plan}%`);
       }
 
@@ -40,7 +40,7 @@ class CustomerController {
       }
 
       if (plan) {
-        countQuery += ' AND plan LIKE ?';
+        countQuery += ' AND plan_id LIKE ?';
         countParams.push(`%${plan}%`);
       }
 
@@ -103,13 +103,13 @@ class CustomerController {
   // Create new customer
   async createCustomer(req, res) {
     try {
-      const { name, email, phone, plan, address, status = 'active' } = req.body;
+      const { name, email, phone, plan_id, address, status = 'active' } = req.body;
 
       // Validate required fields
-      if (!name || !email || !phone || !plan) {
+      if (!name || !email || !phone || !plan_id) {
         return res.status(400).json({
           success: false,
-          message: 'Name, email, phone, and plan are required'
+          message: 'Name, email, phone, and plan_id are required'
         });
       }
 
@@ -130,9 +130,9 @@ class CustomerController {
       const joinDate = new Date();
 
       await pool.execute(
-        `INSERT INTO customers (id, name, email, phone, plan, address, status, join_date, created_at, updated_at) 
+        `INSERT INTO customers (id, name, email, phone, plan_id, address, status, join_date, created_at, updated_at) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-        [customerId, name, email, phone, plan, address || null, status, joinDate]
+        [customerId, name, email, phone, plan_id, address || null, status, joinDate]
       );
 
       // Fetch the created customer
@@ -169,7 +169,7 @@ class CustomerController {
   async updateCustomer(req, res) {
     try {
       const { id } = req.params;
-      const { name, email, phone, plan, address, status } = req.body;
+      const { name, email, phone, plan_id, address, status } = req.body;
 
       // Check if customer exists
       const [existingCustomer] = await pool.execute(
@@ -215,9 +215,9 @@ class CustomerController {
         updateFields.push('phone = ?');
         updateValues.push(phone);
       }
-      if (plan) {
-        updateFields.push('plan = ?');
-        updateValues.push(plan);
+      if (plan_id) {
+        updateFields.push('plan_id = ?');
+        updateValues.push(plan_id);
       }
       if (address !== undefined) {
         updateFields.push('address = ?');
@@ -335,15 +335,15 @@ class CustomerController {
 
       const [planStats] = await pool.execute(`
         SELECT 
-          plan,
+          plan_id,
           COUNT(*) as count
         FROM customers 
         WHERE status = 'active'
-        GROUP BY plan
+        GROUP BY plan_id
       `);
 
       const [recentCustomers] = await pool.execute(`
-        SELECT id, name, email, plan, status, join_date
+        SELECT id, name, email, plan_id, status, join_date
         FROM customers 
         WHERE status != 'deleted'
         ORDER BY join_date DESC 
