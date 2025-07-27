@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Billing System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 30px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 500;
+            min-width: 120px;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48cae4);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status.active { background: #d4edda; color: #155724; }
+        .status.inactive { background: #f8d7da; color: #721c24; }
+        .status.pending { background: #fff3cd; color: #856404; }
+        .status.paid { background: #d1ecf1; color: #0c5460; }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #ff4757;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success { background: linear-gradient(135deg, #56ab2f, #a8e6cf); }
+        .notification.error { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .header h1 { font-size: 2rem; }
+            .nav-tabs { flex-direction: column; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 WiFi Billing System</h1>
+            <p>Complete Internet Service Provider Management Solution</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="showTab('customers')">👥 Customers</button>
+            <button class="nav-tab" onclick="showTab('billing')">💰 Billing</button>
+            <button class="nav-tab" onclick="showTab('payments')">💳 Payments</button>
+            <button class="nav-tab" onclick="showTab('plans')">📋 Plans</button>
+            <button class="nav-tab" onclick="showTab('reports')">📈 Reports</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCustomers">247</div>
+                    <div class="stat-label">Total Customers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="activeConnections">189</div>
+                    <div class="stat-label">Active Connections</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="monthlyRevenue">$12,450</div>
+                    <div class="stat-label">Monthly Revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="pendingPayments">23</div>
+                    <div class="stat-label">Pending Payments</div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2>Revenue Analytics</h2>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2>Recent Activities</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Customer</th>
+                                <th>Action</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityTable">
+                            <tr>
+                                <td>10:30 AM</td>
+                                <td>John Smith</td>
+                                <td>Payment Received</td>
+                                <td><span class="status paid">Paid</span></td>
+                            </tr>
+                            <tr>
+                                <td>09:15 AM</td>
+                                <td>Sarah Johnson</td>
+                                <td>Plan Upgraded</td>
+                                <td><span class="status active">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>08:45 AM</td>
+                                <td>Mike Wilson</td>
+                                <td>New Connection</td>
+                                <td><span class="status pending">Pending</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customers Tab -->
+        <div id="customers" class="tab-content">
+            <div class="content-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Customer Management</h2>
+                    <button class="btn btn-primary" onclick="showModal('customerModal')">+ Add Customer</button>
+                </div>
+                
+                <div class="form-group">
+                    <input type="text" placeholder="Search customers..." id="customerSearch" onkeyup="searchCustomers()">
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Plan</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customersTable">
+                            <tr>
+                                <td>#001</td>
+                                <td>John Smith</td>
+                                <td>john@email.com</td>
+                                <td>Premium 50Mbps</td>
+                                <td><span class="status active">Active</span></td>
+                                <td>
+                                    <button class="btn btn-warning" style="padding: 5px 10px; margin-right: 5px;">Edit</button>
+                                    <button class="btn btn-danger" style="padding: 5px 10px;">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#002</td>
+                                <td>Sarah Johnson</td>
+                                <td>sarah@email.com</td>
+                                <td>Basic 25Mbps</td>
+                                <td><span class="status active">Active</span></td>
+                                <td>
+                                    <button class="btn btn-warning" style="padding: 5px 10px; margin-right: 5px;">Edit</button>
+                                    <button class="btn btn-danger" style="padding: 5px 10px;">Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing Tab -->
+        <div id="billing" class="tab-content">
+            <div class="content-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Billing Management</h2>
+                    <button class="btn btn-primary" onclick="generateBills()">Generate Bills</button>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="billingTable">
+                            <tr>
+                                <td>INV-001</td>
+                                <td>John Smith</td>
+                                <td>$49.99</td>
+                                <td>2025-08-15</td>
+                                <td><span class="status paid">Paid</span></td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 5px 10px;">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>INV-002</td>
+                                <td>Sarah Johnson</td>
+                                <td>$29.99</td>
+                                <td>2025-08-20</td>
+                                <td><span class="status pending">Pending</span></td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 5px 10px;">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payments Tab -->
+        <div id="payments" class="tab-content">
+            <div class="content-card">
+                <h2>Payment Processing</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select>
+                            <option>Credit Card</option>
+                            <option>Bank Transfer</option>
+                            <option>PayPal</option>
+                            <option>Cash</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Customer</label>
+                        <select id="paymentCustomer">
+                            <option>John Smith</option>
+                            <option>Sarah Johnson</option>
+                            <option>Mike Wilson</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" placeholder="Enter amount" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Invoice Number</label>
+                        <input type="text" placeholder="INV-XXX">
+                    </div>
+                </div>
+
+                <button class="btn btn-success">Process Payment</button>
+            </div>
+
+            <div class="content-card">
+                <h2>Recent Payments</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2025-07-27</td>
+                                <td>John Smith</td>
+                                <td>$49.99</td>
+                                <td>Credit Card</td>
+                                <td><span class="status paid">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>2025-07-26</td>
+                                <td>Sarah Johnson</td>
+                                <td>$29.99</td>
+                                <td>Bank Transfer</td>
+                                <td><span class="status paid">Completed</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plans Tab -->
+        <div id="plans" class="tab-content">
+            <div class="content-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Internet Plans</h2>
+                    <button class="btn btn-primary" onclick="showModal('planModal')">+ Add Plan</button>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <h3>Basic Plan</h3>
+                        <div class="stat-value">25 Mbps</div>
+                        <div class="stat-label">$29.99/month</div>
+                        <p style="margin-top: 10px; color: #666;">Perfect for light browsing and email</p>
+                        <button class="btn btn-warning" style="margin-top: 15px;">Edit Plan</button>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Premium Plan</h3>
+                        <div class="stat-value">50 Mbps</div>
+                        <div class="stat-label">$49.99/month</div>
+                        <p style="margin-top: 10px; color: #666;">Great for streaming and gaming</p>
+                        <button class="btn btn-warning" style="margin-top: 15px;">Edit Plan</button>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Ultra Plan</h3>
+                        <div class="stat-value">100 Mbps</div>
+                        <div class="stat-label">$79.99/month</div>
+                        <p style="margin-top: 10px; color: #666;">Maximum speed for heavy users</p>
+                        <button class="btn btn-warning" style="margin-top: 15px;">Edit Plan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports" class="tab-content">
+            <div class="content-card">
+                <h2>Business Reports</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Report Type</label>
+                        <select>
+                            <option>Revenue Report</option>
+                            <option>Customer Report</option>
+                            <option>Usage Report</option>
+                            <option>Payment Report</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date Range</label>
+                        <select>
+                            <option>Last 7 days</option>
+                            <option>Last 30 days</option>
+                            <option>Last 3 months</option>
+                            <option>Custom Range</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary">Generate Report</button>
+                <button class="btn btn-success" style="margin-left: 10px;">Export PDF</button>
+            </div>
+
+            <div class="content-card">
+                <div class="chart-container">
+                    <canvas id="customerChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Modal -->
+    <div id="customerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideModal('customerModal')">&times;</span>
+            <h2>Add New Customer</h2>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" placeholder="Enter full name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="Enter email">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" placeholder="Enter phone number">
+                </div>
+                <div class="form-group">
+                    <label>Plan</label>
+                    <select>
+                        <option>Basic Plan - $29.99</option>
+                        <option>Premium Plan - $49.99</option>
+                        <option>Ultra Plan - $79.99</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Address</label>
+                <textarea placeholder="Enter full address" rows="3"></textarea>
+            </div>
+
+            <button class="btn btn-primary" onclick="addCustomer()">Add Customer</button>
+        </div>
+    </div>
+
+    <!-- Plan Modal -->
+    <div id="planModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideModal('planModal')">&times;</span>
+            <h2>Add New Plan</h2>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Plan Name</label>
+                    <input type="text" placeholder="Enter plan name">
+                </div>
+                <div class="form-group">
+                    <label>Speed (Mbps)</label>
+                    <input type="number" placeholder="Enter speed">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Monthly Price</label>
+                    <input type="number" placeholder="Enter price" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Data Limit</label>
+                    <select>
+                        <option>Unlimited</option>
+                        <option>500 GB</option>
+                        <option>1 TB</option>
+                        <option>2 TB</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea placeholder="Enter plan description" rows="3"></textarea>
+            </div>
+
+            <button class="btn btn-primary" onclick="addPlan()">Add Plan</button>
+        </div>
+    </div>
+
+    <script>
+        // Tab functionality
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const navTabs = document.querySelectorAll('.nav-tab');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            navTabs.forEach(nav => nav.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Modal functionality
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 100);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => document.body.removeChild(notification), 300);
+            }, 3000);
+        }
+
+        // Customer functions
+        function addCustomer() {
+            showNotification('Customer added successfully!');
+            hideModal('customerModal');
+        }
+
+        function searchCustomers() {
+            const searchTerm = document.getElementById('customerSearch').value.toLowerCase();
+            const table = document.getElementById('customersTable');
+            const rows = table.getElementsByTagName('tr');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const name = rows[i].getElementsByTagName('td')[1];
+                if (name) {
+                    const textValue = name.textContent || name.innerText;
+                    rows[i].style.display = textValue.toLowerCase().indexOf(searchTerm) > -1 ? '' : 'none';
+                }
+            }
+        }
+
+        // Plan functions
+        function addPlan() {
+            showNotification('Plan added successfully!');
+            hideModal('planModal');
+        }
+
+        // Billing functions
+        function generateBills() {
+            showNotification('Bills generated successfully!');
+        }
+
+        // Chart initialization
+        function initCharts() {
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: [8500, 9200, 8800, 10500, 11200, 12100, 12450],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.1)' }
+                        },
+                        x: { 
+                            grid: { color: 'rgba(0,0,0,0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // Customer Growth Chart
+            const customerCtx = document.getElementById('customerChart').getContext('2d');
+            new Chart(customerCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Basic Plan', 'Premium Plan', 'Ultra Plan'],
+                    datasets: [{
+                        data: [120, 89, 38],
+                        backgroundColor: [
+                            '#ff6b6b',
+                            '#4ecdc4',
+                            '#45b7d1'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Real-time updates
+        function updateStats() {
+            const stats = {
+                totalCustomers: Math.floor(Math.random() * 10) + 240,
+                activeConnections: Math.floor(Math.random() * 20) + 180,
+                monthlyRevenue: (Math.random() * 2000 + 11000).toFixed(0),
+                pendingPayments: Math.floor(Math.random() * 10) + 20
+            };
+
+            document.getElementById('totalCustomers').textContent = stats.totalCustomers;
+            document.getElementById('activeConnections').textContent = stats.activeConnections;
+            document.getElementById('monthlyRevenue').textContent = ' + stats.monthlyRevenue;
+            document.getElementById('pendingPayments').textContent = stats.pendingPayments;
+        }
+
+        // Auto-refresh activities
+        function addActivity() {
+            const activities = [
+                { customer: 'Alex Thompson', action: 'Payment Received', status: 'paid' },
+                { customer: 'Maria Garcia', action: 'Plan Changed', status: 'active' },
+                { customer: 'David Lee', action: 'Account Created', status: 'pending' },
+                { customer: 'Emma Davis', action: 'Service Activated', status: 'active' }
+            ];
+
+            const activity = activities[Math.floor(Math.random() * activities.length)];
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            const table = document.getElementById('activityTable');
+            const newRow = table.insertRow(0);
+            
+            newRow.innerHTML = `
+                <td>${time}</td>
+                <td>${activity.customer}</td>
+                <td>${activity.action}</td>
+                <td><span class="status ${activity.status}">${activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}</span></td>
+            `;
+
+            // Keep only last 5 activities
+            if (table.rows.length > 5) {
+                table.deleteRow(5);
+            }
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+            
+            // Update stats every 30 seconds
+            setInterval(updateStats, 30000);
+            
+            // Add new activity every 45 seconds
+            setInterval(addActivity, 45000);
+            
+            // Close modals when clicking outside
+            window.onclick = function(event) {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            };
+        });
+
+        // Additional utility functions
+        function exportData(type) {
+            showNotification(`${type} data exported successfully!`);
+        }
+
+        function sendReminder(customer) {
+            showNotification(`Payment reminder sent to ${customer}!`);
+        }
+
+        function toggleCustomerStatus(customerId) {
+            showNotification(`Customer status updated!`);
+        }
+
+        // Advanced search and filtering
+        function filterByStatus(status) {
+            const tables = document.querySelectorAll('tbody tr');
+            tables.forEach(row => {
+                const statusCell = row.querySelector('.status');
+                if (statusCell) {
+                    const shouldShow = status === 'all' || statusCell.classList.contains(status);
+                    row.style.display = shouldShow ? '' : 'none';
+                }
+            });
+        }
+
+        // Print functionality
+        function printInvoice(invoiceId) {
+            showNotification(`Invoice ${invoiceId} sent to printer!`);
+        }
+
+        // Backup and restore
+        function backupData() {
+            showNotification('Data backup completed successfully!');
+        }
+
+        function restoreData() {
+            showNotification('Data restored successfully!');
+        }
+
+        // Network monitoring simulation
+        function monitorNetwork() {
+            const networkStatus = Math.random() > 0.1 ? 'Online' : 'Offline';
+            const bandwidth = (Math.random() * 100).toFixed(1);
+            
+            console.log(`Network Status: ${networkStatus}, Bandwidth Usage: ${bandwidth}%`);
+        }
+
+        // Start network monitoring
+        setInterval(monitorNetwork, 10000);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        showTab('dashboard');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        showTab('customers');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        showTab('billing');
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        showModal('customerModal');
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
