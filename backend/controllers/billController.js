@@ -108,13 +108,13 @@ class BillController {
   // Create new bill
   async createBill(req, res) {
     try {
-      const { customerId, amount, description, dueDate } = req.body;
+      const { customerId, amount, description, dueDate, plan_id} = req.body;
 
       // Validate required fields
-      if (!customerId || !amount || !dueDate) {
+      if (!customerId || !amount || !dueDate || !plan_id) {
         return res.status(400).json({
           success: false,
-          message: 'Customer ID, amount, and due date are required'
+          message: 'Customer ID, amount, plan_id and due date are required'
         });
       }
 
@@ -135,9 +135,9 @@ class BillController {
       const issueDate = new Date().toISOString().split('T')[0];
 
       await pool.execute(
-        `INSERT INTO bills (id, customer_id, amount, description, due_date, issue_date, status) 
+        `INSERT INTO bills (id, customer_id, plan_id, amount, description, due_date, issue_date, status) 
          VALUES (?, ?, ?, ?, ?, ?, 'pending')`,
-        [billId, customerId, amount, description || null, dueDate, issueDate]
+        [billId, customerId, plan_id, amount, description || null, dueDate, issueDate]
       );
 
       // Fetch the created bill with customer info
@@ -339,7 +339,7 @@ class BillController {
         const billId = uuidv4();
         
         await pool.execute(
-          `INSERT INTO bills (id, customer_id, amount, description, due_date, issue_date, status) 
+          `INSERT INTO bills (id, customer_id, plan_id, amount, description, due_date, issue_date, status) 
            VALUES (?, ?, ?, ?, ?, ?, 'pending')`,
           [
             billId, 

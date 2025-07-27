@@ -18,8 +18,8 @@ function Billing() {
     const dueDate = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
 
     activeCustomers.forEach(customer => {
-      const planPrice = customer.plan.includes('Basic') ? 29.99 : 
-                       customer.plan.includes('Premium') ? 49.99 : 79.99;
+      const planPrice = customer.plan_id.includes('Basic') ? 29.99 : 
+                       customer.plan_id.includes('Premium') ? 49.99 : 79.99;
       
       const newBill = {
         id: `INV-${Date.now()}-${customer.id}`,

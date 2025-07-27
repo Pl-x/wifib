@@ -32,7 +32,7 @@ function Plans() {
 
   const handleDelete = (planId) => {
     const customersUsingPlan = customers.filter(customer => 
-      customer.plan.includes(plans.find(p => p.id === planId)?.name)
+      customer.plan_id.includes(plans.find(p => p.id === planId)?.name)
     );
     
     if (customersUsingPlan.length > 0) {
@@ -61,7 +61,7 @@ function Plans() {
   };
 
   const getCustomersCount = (planName) => {
-    return customers.filter(customer => customer.plan.includes(planName)).length;
+    return customers.filter(customer => customer.plan_id.includes(planName)).length;
   };
 
   return (

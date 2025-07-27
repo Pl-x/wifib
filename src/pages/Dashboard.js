@@ -26,9 +26,9 @@ function Dashboard() {
 
   // Customer distribution data
   const customerDistribution = [
-    { name: 'Basic Plan', value: customers.filter(c => c.plan.includes('Basic')).length, color: '#ff6b6b' },
-    { name: 'Premium Plan', value: customers.filter(c => c.plan.includes('Premium')).length, color: '#4ecdc4' },
-    { name: 'Ultra Plan', value: customers.filter(c => c.plan.includes('Ultra')).length, color: '#45b7d1' },
+    { name: 'Basic Plan', value: customers.filter(c => c.plan_id.includes('Basic')).length, color: '#ff6b6b' },
+    { name: 'Premium Plan', value: customers.filter(c => c.plan_id.includes('Premium')).length, color: '#4ecdc4' },
+    { name: 'Ultra Plan', value: customers.filter(c => c.plan_id.includes('Ultra')).length, color: '#45b7d1' },
   ];
 
   return (
