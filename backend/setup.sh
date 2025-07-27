@@ -1,4 +1,5 @@
 #!/bin/bash
+# This is only for mariadb and mysql2...check user manual of your preffered database
 
 # Legion Connections Backend Setup Script
 echo "🚀 Setting up Legion Connections Backend..."
@@ -40,9 +41,9 @@ NODE_ENV=development
 
 # Database Configuration
 DB_HOST=localhost
-DB_USER=root
+DB_USER=username
 DB_PASSWORD=your_password
-DB_NAME=legion_connections
+DB_NAME=database_name
 DB_PORT=3306
 
 # JWT Configuration
@@ -89,7 +90,7 @@ echo "🗄️  Checking MySQL connection..."
 if command -v mysql &> /dev/null; then
     echo "✅ MySQL client found."
     echo "⚠️  Please ensure MySQL server is running and create the database:"
-    echo "   CREATE DATABASE legion_connections;"
+    echo "   CREATE DATABASE database_name;"
 else
     echo "⚠️  MySQL client not found. Please install MySQL and create the database."
 fi
@@ -99,7 +100,7 @@ echo "🎉 Setup completed!"
 echo ""
 echo "📋 Next steps:"
 echo "1. Edit .env file with your database credentials"
-echo "2. Create MySQL database: CREATE DATABASE legion_connections;"
+echo "2. Create MySQL database: CREATE DATABASE database_name;"
 echo "3. Start the server: npm run dev"
 echo ""
 echo "🔗 API will be available at: http://localhost:5000"
