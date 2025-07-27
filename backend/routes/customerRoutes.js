@@ -1,40 +1,55 @@
+// backend/routes/customerRoutes.js
 const express = require('express');
 const router = express.Router();
+const customerController = require('../controllers/customerController');
+const { body, param, query } = require('express-validator');
 
-// Placeholder customer routes
-router.get('/', (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Customer management not implemented yet'
-  });
-});
+// Validation middleware
+const validateCustomer = [
+  body('name').notEmpty().withMessage('Name is required'),
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('phone').notEmpty().withMessage('Phone number is required'),
+  body('plan').notEmpty().withMessage('Plan is required'),
+  body('status').optional().isIn(['active', 'inactive', 'pending']).withMessage('Invalid status'),
+];
 
-router.post('/', (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Customer creation not implemented yet'
-  });
-});
+const validateCustomerUpdate = [
+  body('name').optional().notEmpty().withMessage('Name cannot be empty'),
+  body('email').optional().isEmail().withMessage('Valid email is required'),
+  body('phone').optional().notEmpty().withMessage('Phone number cannot be empty'),
+  body('plan').optional().notEmpty().withMessage('Plan cannot be empty'),
+  body('status').optional().isIn(['active', 'inactive', 'pending']).withMessage('Invalid status'),
+];
 
-router.get('/:id', (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Customer retrieval not implemented yet'
-  });
-});
+// Routes
+router.get('/', [
+  query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+  query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+  query('status').optional().isIn(['active', 'inactive', 'pending']).withMessage('Invalid status'),
+  query('plan').optional().isString().withMessage('Plan must be a string')
+], customerController.getAllCustomers);
 
-router.put('/:id', (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Customer update not implemented yet'
-  });
-});
+router.post('/', validateCustomer, customerController.createCustomer);
 
-router.delete('/:id', (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Customer deletion not implemented yet'
-  });
-});
+router.get('/stats', customerController.getCustomerStats);
 
-module.exports = router; 
+router.get('/:id', [
+  param('id').notEmpty().withMessage('Customer ID is required')
+], customerController.getCustomerById);
+
+router.get('/:id/payments', [
+  param('id').notEmpty().withMessage('Customer ID is required'),
+  query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+  query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('Limit must be between 1 and 50')
+], customerController.getCustomerPayments);
+
+router.put('/:id', [
+  param('id').notEmpty().withMessage('Customer ID is required'),
+  ...validateCustomerUpdate
+], customerController.updateCustomer);
+
+router.delete('/:id', [
+  param('id').notEmpty().withMessage('Customer ID is required')
+], customerController.deleteCustomer);
+
+module.exports = router;

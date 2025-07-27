@@ -1,88 +1,88 @@
-import React, { createContext, useContext, useReducer, useEffect , useCallback } from 'react';
-import { paymentAPI, healthAPI } from '../services/api';
+// src/context/DataContext.js
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { paymentAPI, customerAPI, billAPI } from '../services/api';
 import toast from 'react-hot-toast';
 
-// Initial state with dummy data for development
-const initialState = {
-  customers: [
-    { id: 'customer-001', name: 'John Smith', email: 'john@email.com', phone: '+1234567890', plan: 'Premium 50Mbps', status: 'active', joinDate: '2024-01-15' },
-    { id: 'customer-002', name: 'Sarah Johnson', email: 'sarah@email.com', phone: '+1234567891', plan: 'Basic 25Mbps', status: 'active', joinDate: '2024-02-20' },
-    { id: 'customer-003', name: 'Mike Wilson', email: 'mike@email.com', phone: '+1234567892', plan: 'Ultra 100Mbps', status: 'pending', joinDate: '2024-03-10' },
-  ],
-  plans: [
-    { id: 'plan-001', name: 'Basic Plan', speed: '25 Mbps', price: 29.99, dataLimit: 'Unlimited', description: 'Perfect for light browsing and email' },
-    { id: 'plan-002', name: 'Premium Plan', speed: '50 Mbps', price: 49.99, dataLimit: 'Unlimited', description: 'Great for streaming and gaming' },
-    { id: 'plan-003', name: 'Ultra Plan', speed: '100 Mbps', price: 79.99, dataLimit: 'Unlimited', description: 'Maximum speed for heavy users' },
-  ],
-  bills: [
-    { id: 'bill-001', customerId: 'customer-001', amount: 49.99, dueDate: '2024-08-15', status: 'paid' },
-    { id: 'bill-002', customerId: 'customer-002', amount: 29.99, dueDate: '2024-08-20', status: 'pending' },
-  ],
-  payments: [
-    { id: 'payment-001', customerId: 'customer-001', amount: 49.99, method: 'credit_card', status: 'completed', date: '2024-07-27' },
-    { id: 'payment-002', customerId: 'customer-002', amount: 29.99, method: 'bank_transfer', status: 'completed', date: '2024-07-26' },
-  ],
-  activities: [
-    { id: 'activity-001', customer: 'John Smith', action: 'Payment Received', status: 'paid', time: '10:30 AM' },
-    { id: 'activity-002', customer: 'Sarah Johnson', action: 'Plan Upgraded', status: 'active', time: '09:15 AM' },
-    { id: 'activity-003', customer: 'Mike Wilson', action: 'New Connection', status: 'pending', time: '08:45 AM' },
-  ],
-  backendConnected: false,
-  loading: false,
-  error: null
-};
+const DataContext = createContext();
 
 // Action types
 const ACTIONS = {
   SET_LOADING: 'SET_LOADING',
   SET_ERROR: 'SET_ERROR',
-  SET_BACKEND_STATUS: 'SET_BACKEND_STATUS',
-  ADD_PAYMENT: 'ADD_PAYMENT',
-  UPDATE_PAYMENT: 'UPDATE_PAYMENT',
+  SET_CUSTOMERS: 'SET_CUSTOMERS',
+  SET_BILLS: 'SET_BILLS',
+  SET_PAYMENTS: 'SET_PAYMENTS',
+  SET_PLANS: 'SET_PLANS',
   ADD_CUSTOMER: 'ADD_CUSTOMER',
   UPDATE_CUSTOMER: 'UPDATE_CUSTOMER',
   DELETE_CUSTOMER: 'DELETE_CUSTOMER',
   ADD_BILL: 'ADD_BILL',
   UPDATE_BILL: 'UPDATE_BILL',
-  ADD_PLAN: 'ADD_PLAN',
-  UPDATE_PLAN: 'UPDATE_PLAN',
-  DELETE_PLAN: 'DELETE_PLAN',
-  ADD_ACTIVITY: 'ADD_ACTIVITY',
-  SYNC_PAYMENTS: 'SYNC_PAYMENTS'
+  ADD_PAYMENT: 'ADD_PAYMENT',
+  SET_ACTIVITIES: 'SET_ACTIVITIES',
 };
 
-// Reducer function
+// Initial state
+const initialState = {
+  loading: {
+    customers: false,
+    bills: false,
+    payments: false,
+    plans: false,
+  },
+  error: null,
+  customers: [],
+  bills: [],
+  payments: [],
+  plans: [
+    {
+      id: 'plan1',
+      name: 'Basic 25Mbps',
+      speed: '25 Mbps',
+      price: 29.99,
+      dataLimit: '500 GB',
+      description: 'Perfect for basic internet browsing and email'
+    },
+    {
+      id: 'plan2',
+      name: 'Premium 50Mbps',
+      speed: '50 Mbps',
+      price: 49.99,
+      dataLimit: '1 TB',
+      description: 'Great for streaming and moderate downloads'
+    },
+    {
+      id: 'plan3',
+      name: 'Ultra 100Mbps',
+      speed: '100 Mbps',
+      price: 79.99,
+      dataLimit: 'Unlimited',
+      description: 'Ultimate speed for gaming and heavy usage'
+    }
+  ],
+  activities: [],
+};
+
+// Reducer
 function dataReducer(state, action) {
   switch (action.type) {
     case ACTIONS.SET_LOADING:
-      return { ...state, loading: action.payload };
-    
+      return {
+        ...state,
+        loading: { ...state.loading, [action.payload.type]: action.payload.value }
+      };
     case ACTIONS.SET_ERROR:
       return { ...state, error: action.payload };
-    
-    case ACTIONS.SET_BACKEND_STATUS:
-      return { ...state, backendConnected: action.payload };
-    
-    case ACTIONS.ADD_PAYMENT:
-      return {
-        ...state,
-        payments: [action.payload, ...state.payments]
-      };
-    
-    case ACTIONS.UPDATE_PAYMENT:
-      return {
-        ...state,
-        payments: state.payments.map(payment =>
-          payment.id === action.payload.id ? action.payload : payment
-        )
-      };
-    
+    case ACTIONS.SET_CUSTOMERS:
+      return { ...state, customers: action.payload };
+    case ACTIONS.SET_BILLS:
+      return { ...state, bills: action.payload };
+    case ACTIONS.SET_PAYMENTS:
+      return { ...state, payments: action.payload };
+    case ACTIONS.SET_PLANS:
+      return { ...state, plans: action.payload };
     case ACTIONS.ADD_CUSTOMER:
-      return {
-        ...state,
-        customers: [...state.customers, action.payload]
-      };
-    
+      return { ...state, customers: [...state.customers, action.payload] };
     case ACTIONS.UPDATE_CUSTOMER:
       return {
         ...state,
@@ -90,19 +90,13 @@ function dataReducer(state, action) {
           customer.id === action.payload.id ? action.payload : customer
         )
       };
-    
     case ACTIONS.DELETE_CUSTOMER:
       return {
         ...state,
         customers: state.customers.filter(customer => customer.id !== action.payload)
       };
-    
     case ACTIONS.ADD_BILL:
-      return {
-        ...state,
-        bills: [...state.bills, action.payload]
-      };
-    
+      return { ...state, bills: [...state.bills, action.payload] };
     case ACTIONS.UPDATE_BILL:
       return {
         ...state,
@@ -110,77 +104,186 @@ function dataReducer(state, action) {
           bill.id === action.payload.id ? action.payload : bill
         )
       };
-    
-    case ACTIONS.ADD_PLAN:
-      return {
-        ...state,
-        plans: [...state.plans, action.payload]
-      };
-    
-    case ACTIONS.UPDATE_PLAN:
-      return {
-        ...state,
-        plans: state.plans.map(plan =>
-          plan.id === action.payload.id ? action.payload : plan
-        )
-      };
-    
-    case ACTIONS.DELETE_PLAN:
-      return {
-        ...state,
-        plans: state.plans.filter(plan => plan.id !== action.payload)
-      };
-    
-    case ACTIONS.ADD_ACTIVITY:
-      return {
-        ...state,
-        activities: [action.payload, ...state.activities.slice(0, 4)] // Keep only 5 activities
-      };
-    
-    case ACTIONS.SYNC_PAYMENTS:
-      return {
-        ...state,
-        payments: action.payload
-      };
-    
+    case ACTIONS.ADD_PAYMENT:
+      return { ...state, payments: [action.payload, ...state.payments] };
+    case ACTIONS.SET_ACTIVITIES:
+      return { ...state, activities: action.payload };
     default:
       return state;
   }
 }
 
-// Create context
-const DataContext = createContext();
-
 // Provider component
 export function DataProvider({ children }) {
   const [state, dispatch] = useReducer(dataReducer, initialState);
 
-  // Check backend connection on mount
-  
+  // Helper function to handle API errors
+  const handleApiError = (error, context) => {
+    console.error(`${context} error:`, error);
+    const message = error.response?.data?.message || error.message || 'An error occurred';
+    dispatch({ type: ACTIONS.SET_ERROR, payload: message });
+    toast.error(`${context}: ${message}`);
+  };
 
-  // Check if backend is available
-  const checkBackendConnection = useCallback(async () => {
+  // Load data on mount
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
+  const loadInitialData = async () => {
+    await Promise.all([
+      fetchCustomers(),
+      fetchBills(),
+      fetchPayments(),
+    ]);
+  };
+
+  // Customer functions
+  const fetchCustomers = async () => {
+    dispatch({ type: ACTIONS.SET_LOADING, payload: { type: 'customers', value: true } });
     try {
-      const response = await healthAPI.checkHealth();
-      if (response.status === 200) {
-        dispatch({ type: ACTIONS.SET_BACKEND_STATUS, payload: true });
-        console.log('✅ Backend connected successfully');
-        
-        // Sync payments from backend
-        await syncPaymentsFromBackend();
+      const response = await customerAPI.getAllCustomers();
+      if (response.data.success) {
+        dispatch({ type: ACTIONS.SET_CUSTOMERS, payload: response.data.data });
       }
     } catch (error) {
-      console.warn('⚠️ Backend not available, using local data:', error.message);
-      dispatch({ type: ACTIONS.SET_BACKEND_STATUS, payload: false });
+      // If customers API not implemented yet, use mock data
+      if (error.response?.status === 501) {
+        console.log('Customer API not implemented, using mock data');
+        const mockCustomers = [
+          {
+            id: '001',
+            name: 'Alexander Petrov',
+            email: 'alex.petrov@email.com',
+            phone: '+7 495 123-4567',
+            plan: 'Premium 50Mbps',
+            status: 'active',
+            address: 'Moscow, Russia',
+            joinDate: '2023-01-15',
+            lastPayment: '2024-07-01'
+          },
+          {
+            id: '002',
+            name: 'Maria Volkov',
+            email: 'maria.volkov@email.com',
+            phone: '+7 812 987-6543',
+            plan: 'Basic 25Mbps',
+            status: 'active',
+            address: 'St. Petersburg, Russia',
+            joinDate: '2023-03-20',
+            lastPayment: '2024-06-28'
+          },
+        ];
+        dispatch({ type: ACTIONS.SET_CUSTOMERS, payload: mockCustomers });
+      } else {
+        handleApiError(error, 'Fetch customers');
+      }
+    } finally {
+      dispatch({ type: ACTIONS.SET_LOADING, payload: { type: 'customers', value: false } });
     }
-  }, []); 
+  };
 
-useEffect(() => {
-    checkBackendConnection();
-  }, [checkBackendConnection]);
-  
-  // Sync payments from backend
-  const syncPaymentsFromBackend = async () => {
+  const addCustomer = async (customerData) => {
+    try {
+      const response = await customerAPI.createCustomer(customerData);
+      if (response.data.success) {
+        dispatch({ type: ACTIONS.ADD_CUSTOMER, payload: response.data.data });
+        toast.success('Customer added successfully!');
+        return response.data.data;
+      }
+    } catch (error) {
+      // If API not implemented, add to local state
+      if (error.response?.status === 501) {
+        dispatch({ type: ACTIONS.ADD_CUSTOMER, payload: customerData });
+        toast.success('Customer added successfully! (Mock data)');
+        return customerData;
+      } else {
+        handleApiError(error, 'Add customer');
+        throw error;
+      }
+    }
+  };
+
+  const deleteCustomer = async (customerId) => {
+    try {
+      await customerAPI.deleteCustomer(customerId);
+      dispatch({ type: ACTIONS.DELETE_CUSTOMER, payload: customerId });
+      toast.success('Customer deleted successfully!');
+    } catch (error) {
+      // If API not implemented, delete from local state
+      if (error.response?.status === 501) {
+        dispatch({ type: ACTIONS.DELETE_CUSTOMER, payload: customerId });
+        toast.success('Customer deleted successfully! (Mock data)');
+      } else {
+        handleApiError(error, 'Delete customer');
+        throw error;
+      }
+    }
+  };
+
+  // Bill functions
+  const fetchBills = async () => {
+    dispatch({ type: ACTIONS.SET_LOADING, payload: { type: 'bills', value: true } });
+    try {
+      const response = await billAPI.getAllBills();
+      if (response.data.success) {
+        dispatch({ type: ACTIONS.SET_BILLS, payload: response.data.data });
+      }
+    } catch (error) {
+      // If bills API not implemented yet, use mock data
+      if (error.response?.status === 501) {
+        console.log('Bills API not implemented, using mock data');
+        const mockBills = [
+          {
+            id: 'INV-2024-001',
+            customerId: '001',
+            customerName: 'Alexander Petrov',
+            amount: 49.99,
+            dueDate: '2024-08-15',
+            status: 'pending',
+            issueDate: '2024-07-15'
+          },
+          {
+            id: 'INV-2024-002',
+            customerId: '002',
+            customerName: 'Maria Volkov',
+            amount: 29.99,
+            dueDate: '2024-08-20',
+            status: 'paid',
+            issueDate: '2024-07-20'
+          },
+        ];
+        dispatch({ type: ACTIONS.SET_BILLS, payload: mockBills });
+      } else {
+        handleApiError(error, 'Fetch bills');
+      }
+    } finally {
+      dispatch({ type: ACTIONS.SET_LOADING, payload: { type: 'bills', value: false } });
+    }
+  };
+
+  const addBill = async (billData) => {
+    try {
+      const response = await billAPI.createBill(billData);
+      if (response.data.success) {
+        dispatch({ type: ACTIONS.ADD_BILL, payload: response.data.data });
+        return response.data.data;
+      }
+    } catch (error) {
+      // If API not implemented, add to local state
+      if (error.response?.status === 501) {
+        dispatch({ type: ACTIONS.ADD_BILL, payload: billData });
+        return billData;
+      } else {
+        handleApiError(error, 'Add bill');
+        throw error;
+      }
+    }
+  };
+
+  // Payment functions - these should work with your existing backend
+  const fetchPayments = async () => {
+    dispatch({ type: ACTIONS.SET_LOADING, payload: { type: 'payments', value: true } });
     try {
       const response = await paymentAPI.getAllPayments();
       if (response.data.success) {
@@ -188,189 +291,97 @@ useEffect(() => {
         const transformedPayments = response.data.data.map(payment => ({
           id: payment.id,
           customerId: payment.customer_id,
-          amount: payment.amount,
-          method: payment.payment_method,
+          amount: parseFloat(payment.amount),
+          method: payment.payment_method || payment.method,
           status: payment.status,
-          date: payment.payment_date || payment.created_at,
-          invoiceNumber: payment.bill_id
+          date: payment.created_at || payment.payment_date,
+          invoiceNumber: payment.bill_id,
+          mpesaReceipt: payment.mpesa_receipt,
+          phoneNumber: payment.mpesa_phone,
         }));
-        
-        dispatch({ type: ACTIONS.SYNC_PAYMENTS, payload: transformedPayments });
+        dispatch({ type: ACTIONS.SET_PAYMENTS, payload: transformedPayments });
       }
     } catch (error) {
-      console.warn('Failed to sync payments from backend:', error.message);
+      handleApiError(error, 'Fetch payments');
+      // Fallback to empty array if payments can't be loaded
+      dispatch({ type: ACTIONS.SET_PAYMENTS, payload: [] });
+    } finally {
+      dispatch({ type: ACTIONS.SET_LOADING, payload: { type: 'payments', value: false } });
     }
   };
 
-  // Add payment (with backend integration)
-  const addPayment = async (paymentData) => {
-    // Add to local state immediately for UI responsiveness
-    const newPayment = {
-      id: paymentData.id || `payment-${Date.now()}`,
-      customerId: paymentData.customerId,
-      amount: paymentData.amount,
-      method: paymentData.method,
-      status: paymentData.status || 'completed',
-      date: paymentData.date || new Date().toISOString(),
-      invoiceNumber: paymentData.invoiceNumber
-    };
-
-    dispatch({ type: ACTIONS.ADD_PAYMENT, payload: newPayment });
-
-    // Try to sync with backend if available
-    if (state.backendConnected) {
-      try {
-        // For M-Pesa payments, the backend already handles the creation
-        // For other payment methods, we could add a backend endpoint
-        console.log('Payment added locally, backend sync would happen here');
-      } catch (error) {
-        console.warn('Failed to sync payment to backend:', error.message);
-        toast.error('Payment saved locally but failed to sync with server');
-      }
-    }
-
-    // Add activity
-    const customer = state.customers.find(c => c.id === paymentData.customerId);
-    const activity = {
-      id: `activity-${Date.now()}`,
-      customer: customer?.name || 'Unknown Customer',
-      action: 'Payment Received',
-      status: 'paid',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    dispatch({ type: ACTIONS.ADD_ACTIVITY, payload: activity });
+  const addPayment = (paymentData) => {
+    // This will be called after successful payment processing
+    dispatch({ type: ACTIONS.ADD_PAYMENT, payload: paymentData });
   };
 
-  // Update payment status (for M-Pesa polling)
-  const updatePaymentStatus = (paymentId, status, additionalData = {}) => {
-    const updatedPayment = {
-      id: paymentId,
-      status,
-      ...additionalData
-    };
-    dispatch({ type: ACTIONS.UPDATE_PAYMENT, payload: updatedPayment });
-  };
-
-  // Add customer
-  const addCustomer = (customerData) => {
-    const newCustomer = {
-      id: `customer-${Date.now()}`,
-      ...customerData,
-      joinDate: new Date().toISOString().split('T')[0]
-    };
-    dispatch({ type: ACTIONS.ADD_CUSTOMER, payload: newCustomer });
+  // Generate activities from recent data
+  const generateActivities = () => {
+    const activities = [];
     
-    // Add activity
-    const activity = {
-      id: `activity-${Date.now()}`,
-      customer: customerData.name,
-      action: 'New Customer Added',
-      status: 'active',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    dispatch({ type: ACTIONS.ADD_ACTIVITY, payload: activity });
+    // Add recent payments
+    state.payments.slice(0, 3).forEach(payment => {
+      const customer = state.customers.find(c => c.id === payment.customerId);
+      if (customer) {
+        activities.push({
+          id: `payment-${payment.id}`,
+          customer: customer.name,
+          action: `Made payment of $${payment.amount}`,
+          time: new Date(payment.date).toLocaleTimeString(),
+          status: payment.status
+        });
+      }
+    });
+
+    // Add recent customer activities
+    state.customers.slice(0, 2).forEach(customer => {
+      activities.push({
+        id: `customer-${customer.id}`,
+        customer: customer.name,
+        action: 'Service connection active',
+        time: '2 hours ago',
+        status: customer.status
+      });
+    });
+
+    dispatch({ type: ACTIONS.SET_ACTIVITIES, payload: activities });
   };
 
-  // Update customer
-  const updateCustomer = (customerId, updates) => {
-    const customer = state.customers.find(c => c.id === customerId);
-    if (customer) {
-      const updatedCustomer = { ...customer, ...updates };
-      dispatch({ type: ACTIONS.UPDATE_CUSTOMER, payload: updatedCustomer });
-    }
+  // Update activities when data changes
+  useEffect(() => {
+    generateActivities();
+  }, [state.payments, state.customers]);
+
+  // Refresh functions
+  const refreshData = async () => {
+    await loadInitialData();
   };
 
-  // Delete customer
-  const deleteCustomer = (customerId) => {
-    dispatch({ type: ACTIONS.DELETE_CUSTOMER, payload: customerId });
-  };
-
-  // Add bill
-  const addBill = (billData) => {
-    const newBill = {
-      id: `bill-${Date.now()}`,
-      ...billData
-    };
-    dispatch({ type: ACTIONS.ADD_BILL, payload: newBill });
-  };
-
-  // Update bill
-  const updateBill = (billId, updates) => {
-    const bill = state.bills.find(b => b.id === billId);
-    if (bill) {
-      const updatedBill = { ...bill, ...updates };
-      dispatch({ type: ACTIONS.UPDATE_BILL, payload: updatedBill });
-    }
-  };
-
-  // Add plan
-  const addPlan = (planData) => {
-    const newPlan = {
-      id: `plan-${Date.now()}`,
-      ...planData
-    };
-    dispatch({ type: ACTIONS.ADD_PLAN, payload: newPlan });
-  };
-
-  // Update plan
-  const updatePlan = (planId, updates) => {
-    const plan = state.plans.find(p => p.id === planId);
-    if (plan) {
-      const updatedPlan = { ...plan, ...updates };
-      dispatch({ type: ACTIONS.UPDATE_PLAN, payload: updatedPlan });
-    }
-  };
-
-  // Delete plan
-  const deletePlan = (planId) => {
-    dispatch({ type: ACTIONS.DELETE_PLAN, payload: planId });
-  };
-
-  // Get dashboard stats
-  const getDashboardStats = () => {
-    const totalCustomers = state.customers.length;
-    const activeConnections = state.customers.filter(c => c.status === 'active').length;
-    const monthlyRevenue = state.payments
-      .filter(p => p.status === 'completed')
-      .reduce((sum, p) => sum + parseFloat(p.amount), 0);
-    const pendingPayments = state.bills.filter(b => b.status === 'pending').length;
-
-    return {
-      totalCustomers,
-      activeConnections,
-      monthlyRevenue,
-      pendingPayments
-    };
+  const refreshPayments = async () => {
+    await fetchPayments();
   };
 
   const value = {
     ...state,
-    addPayment,
-    updatePaymentStatus,
+    // Actions
     addCustomer,
-    updateCustomer,
     deleteCustomer,
     addBill,
-    updateBill,
-    addPlan,
-    updatePlan,
-    deletePlan,
-    getDashboardStats,
-    checkBackendConnection
+    addPayment,
+    refreshData,
+    refreshPayments,
+    fetchCustomers,
+    fetchBills,
+    fetchPayments,
   };
 
-  return (
-    <DataContext.Provider value={value}>
-      {children}
-    </DataContext.Provider>
-  );
+  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }
 
-// Custom hook to use the data context
 export function useData() {
   const context = useContext(DataContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useData must be used within a DataProvider');
   }
   return context;
-} 
+}
