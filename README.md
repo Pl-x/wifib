@@ -1,89 +1,89 @@
-# Легион Коннекшнс - WiFi Billing System
+# Legion Connections - WiFi Billing System
 
-Современная система управления WiFi-сервисом и биллингом, построенная на React и Node.js.
+A modern WiFi service management and billing system built on React and Node.js.
 
-## 🚀 Особенности
+## 🚀 Features
 
-- **Современный UI/UX**: Красивый и интуитивный интерфейс с использованием Tailwind CSS
-- **Полная функциональность**: Управление клиентами, счетами, платежами и планами
-- **Аналитика**: Детальные отчеты и графики с использованием Recharts
-- **Адаптивный дизайн**: Работает на всех устройствах
-- **Русская локализация**: Полная поддержка русского языка
-- **Реальное время**: Обновления данных в реальном времени
+- **Modern UI/UX**: Beautiful and intuitive interface using Tailwind CSS
+- **Full Functionality**: Customer management, billing, payments, and plans
+- **Analytics**: Detailed reports and charts using Recharts
+- **Responsive Design**: Works on all devices
+- **English Localization**: Full English language support
+- **Real-time**: Real-time data updates
 
-## 📋 Компоненты системы
+## 📋 System Components
 
-### Основные страницы:
-- **Dashboard** - Главная панель с ключевыми метриками
-- **Customers** - Управление клиентами (CRUD операции)
-- **Billing** - Генерация и управление счетами
-- **Payments** - Обработка платежей
-- **Plans** - Управление тарифными планами
-- **Reports** - Бизнес-аналитика и отчеты
+### Main Pages:
+- **Dashboard** - Main panel with key metrics
+- **Customers** - Customer management (CRUD operations)
+- **Billing** - Invoice generation and management
+- **Payments** - Payment processing
+- **Plans** - Service plan management
+- **Reports** - Business analytics and reports
 
-### Компоненты:
+### Components:
 - **Layout**: Sidebar, Header, Navigation
 - **UI**: StatCard, Modal, Forms, Tables
 - **Charts**: Revenue, Customer Distribution, Payment Methods
-- **Context**: DataProvider для управления состоянием
+- **Context**: DataProvider for state management
 
-## 🛠 Технологии
+## 🛠 Technologies
 
 ### Frontend:
-- **React 18** - Основной фреймворк
-- **React Router** - Навигация
-- **Tailwind CSS** - Стилизация
-- **Recharts** - Графики и диаграммы
-- **Lucide React** - Иконки
-- **React Hot Toast** - Уведомления
-- **React Hook Form** - Управление формами
+- **React 18** - Main framework
+- **React Router** - Navigation
+- **Tailwind CSS** - Styling
+- **Recharts** - Charts and diagrams
+- **Lucide React** - Icons
+- **React Hot Toast** - Notifications
+- **React Hook Form** - Form management
 
-### Backend (рекомендуется):
-- **Node.js** - Серверная среда
-- **Express.js** - Веб-фреймворк
-- **MongoDB/PostgreSQL** - База данных
-- **JWT** - Аутентификация
-- **Multer** - Загрузка файлов
-- **Nodemailer** - Отправка email
+### Backend (recommended):
+- **Node.js** - Server environment
+- **Express.js** - Web framework
+- **MongoDB/PostgreSQL** - Database
+- **JWT** - Authentication
+- **Multer** - File uploads
+- **Nodemailer** - Email sending
 
-## 📦 Установка и запуск
+## 📦 Installation and Setup
 
-### 1. Клонирование репозитория
+### 1. Clone the repository
 ```bash
 git clone <repository-url>
 cd legion-connections-billing
 ```
 
-### 2. Установка зависимостей
+### 2. Install dependencies
 ```bash
 npm install
 ```
 
-### 3. Запуск в режиме разработки
+### 3. Run in development mode
 ```bash
 npm start
 ```
 
-Приложение будет доступно по адресу: http://localhost:3000
+Application will be available at: http://localhost:3000
 
-### 4. Сборка для продакшена
+### 4. Build for production
 ```bash
 npm run build
 ```
 
-## 🔧 Конфигурация
+## 🔧 Configuration
 
-### Переменные окружения
-Создайте файл `.env` в корне проекта:
+### Environment Variables
+Create a `.env` file in the project root:
 
 ```env
 REACT_APP_API_URL=http://localhost:5000/api
-REACT_APP_APP_NAME=Легион Коннекшнс
+REACT_APP_APP_NAME=Legion Connections
 ```
 
-## 📊 Структура данных
+## 📊 Data Structure
 
-### Клиенты (Customers)
+### Customers
 ```javascript
 {
   id: string,
@@ -98,7 +98,7 @@ REACT_APP_APP_NAME=Легион Коннекшнс
 }
 ```
 
-### Счета (Bills)
+### Bills
 ```javascript
 {
   id: string,
@@ -111,7 +111,7 @@ REACT_APP_APP_NAME=Легион Коннекшнс
 }
 ```
 
-### Платежи (Payments)
+### Payments
 ```javascript
 {
   id: string,
@@ -125,7 +125,7 @@ REACT_APP_APP_NAME=Легион Коннекшнс
 }
 ```
 
-### Планы (Plans)
+### Plans
 ```javascript
 {
   id: string,
@@ -137,54 +137,54 @@ REACT_APP_APP_NAME=Легион Коннекшнс
 }
 ```
 
-## 🔐 Что еще нужно добавить
+## 🔐 What Still Needs to be Added
 
 ### 1. Backend API
 ```bash
-# Создать папку для backend
+# Create backend folder
 mkdir backend
 cd backend
 npm init -y
 npm install express mongoose cors dotenv bcryptjs jsonwebtoken
 ```
 
-### 2. База данных
-- **MongoDB** для NoSQL решения
-- **PostgreSQL** для реляционной БД
-- **Redis** для кэширования
+### 2. Database
+- **MongoDB** for NoSQL solution
+- **PostgreSQL** for relational DB
+- **Redis** for caching
 
-### 3. Аутентификация
-- JWT токены
-- Роли пользователей (Admin, Manager, Operator)
-- Защищенные маршруты
+### 3. Authentication
+- JWT tokens
+- User roles (Admin, Manager, Operator)
+- Protected routes
 
-### 4. Дополнительные функции
-- **Email уведомления** - напоминания о платежах
-- **SMS интеграция** - уведомления клиентов
-- **PDF генерация** - счета и отчеты
-- **API интеграции** - платежные системы
-- **Мониторинг сети** - статус подключений
-- **Автоматическое выставление счетов** - по расписанию
-- **Система скидок** - промокоды и акции
-- **Мультиязычность** - поддержка других языков
+### 4. Additional Features
+- **Email notifications** - payment reminders
+- **SMS integration** - customer notifications
+- **PDF generation** - invoices and reports
+- **API integrations** - payment systems
+- **Network monitoring** - connection status
+- **Automatic billing** - scheduled billing
+- **Discount system** - promo codes and promotions
+- **Multi-language** - other language support
 
 ### 5. DevOps
-- **Docker** - контейнеризация
-- **Nginx** - веб-сервер
-- **PM2** - управление процессами
-- **SSL сертификаты** - HTTPS
-- **Backup системы** - резервное копирование
+- **Docker** - containerization
+- **Nginx** - web server
+- **PM2** - process management
+- **SSL certificates** - HTTPS
+- **Backup systems** - data backup
 
-### 6. Мониторинг
-- **Logging** - логирование действий
-- **Analytics** - аналитика использования
-- **Error tracking** - отслеживание ошибок
-- **Performance monitoring** - мониторинг производительности
+### 6. Monitoring
+- **Logging** - action logging
+- **Analytics** - usage analytics
+- **Error tracking** - error monitoring
+- **Performance monitoring** - performance tracking
 
-## 🎨 Кастомизация
+## 🎨 Customization
 
-### Цветовая схема
-Измените цвета в `tailwind.config.js`:
+### Color Scheme
+Change colors in `tailwind.config.js`:
 
 ```javascript
 colors: {
@@ -195,42 +195,42 @@ colors: {
 }
 ```
 
-### Локализация
-Добавьте новые языки в компоненты или используйте i18next.
+### Localization
+Add new languages to components or use i18next.
 
-### Темы
-Добавьте поддержку темной темы в `DataContext`.
+### Themes
+Add dark theme support in `DataContext`.
 
-## 📱 Мобильная версия
+## 📱 Mobile Version
 
-Приложение полностью адаптивно и работает на:
-- 📱 Мобильные телефоны
-- 📱 Планшеты
-- 💻 Десктопы
-- 🖥 Большие экраны
+The application is fully responsive and works on:
+- 📱 Mobile phones
+- 📱 Tablets
+- 💻 Desktops
+- 🖥 Large screens
 
-## 🤝 Вклад в проект
+## 🤝 Contributing
 
-1. Форкните репозиторий
-2. Создайте ветку для новой функции
-3. Внесите изменения
-4. Создайте Pull Request
+1. Fork the repository
+2. Create a branch for new feature
+3. Make changes
+4. Create a Pull Request
 
-## 📄 Лицензия
+## 📄 License
 
-MIT License - см. файл LICENSE для деталей.
+MIT License - see LICENSE file for details.
 
-## 🆘 Поддержка
+## 🆘 Support
 
-Если у вас есть вопросы или проблемы:
-- Создайте Issue в GitHub
-- Обратитесь к документации
-- Проверьте примеры в коде
+If you have questions or issues:
+- Create an Issue on GitHub
+- Refer to documentation
+- Check examples in code
 
-## 🚀 Демо
+## 🚀 Demo
 
-Демо версия доступна по адресу: [ссылка на демо]
+Demo version available at: [demo link]
 
 ---
 
-**Легион Коннекшнс** - Ваш надежный партнер в управлении WiFi-сервисом! 🌐 
+**Legion Connections** - Your reliable partner in WiFi service management! 🌐
