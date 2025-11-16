@@ -42,7 +42,7 @@ function Sidebar({ isOpen, setIsOpen }) {
               <Wifi className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-gray-900">Building what matters.</h1>
+              <h1 className="text-lg font-bold text-gray-900">Transtech Solutions</h1>
               <p className="text-xs text-gray-500">WiFi Billing System</p>
             </div>
           </div>
