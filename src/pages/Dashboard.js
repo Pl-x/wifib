@@ -35,7 +35,7 @@ function Dashboard() {
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white">
-        <h1 className="text-3xl font-bold">Welcome to Легион Коннекшнс</h1>
+        <h1 className="text-3xl font-bold">Welcome to Legion Admin Panel</h1>
         <p className="text-blue-100 mt-2">WiFi Service and Billing Management</p>
       </div>
 
